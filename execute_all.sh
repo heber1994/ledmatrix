@@ -7,8 +7,8 @@ echo "."
 echo ". ."
 echo ". . ."
 echo "Cleaning complete!"
-echo "Cleaning header files!"
-echo `rm -rf Export/*.h`
+echo "Cleaning export files!"
+echo `rm -rf Export/export.h`
 echo "."
 echo ". ."
 echo ". . ."

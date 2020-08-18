@@ -2,6 +2,8 @@
 #define bmpreadclass_h
 
 using namespace std;
+extern int numberoffilesopen;
+extern string initialpath;
 class bmp_read{
 
 private:
@@ -36,10 +38,6 @@ ofstream exporthexdata;
 	void open(char filelocation[])
 	{
 		memset(info,0,sizeof(info));
-		//for(int loop = 0; loop < 54; loop++)	//initialize info[] array and set all contents to 0
-		//{
-		//	info[loop] = 0x00;
-		//}
 		openbmpfile.open(filelocation);
 		
 		if (openbmpfile.is_open())
@@ -54,7 +52,6 @@ ofstream exporthexdata;
 		for(int loop = 0; loop<54; loop++)
 		{
 		info[loop] = openbmpfile.get()+0x00;		//all characters are copied to info[loop]
-		//openbmpfile >>hex>>info[loop];	//this import skips special characters. avoid!
 		}
 	
 	
@@ -90,8 +87,6 @@ ofstream exporthexdata;
 		for(int i = 0; i < loop_limit;i++)
 		{
 			buffer2[i] = buffer1[(i*3)]+0; //jump data pointers by increments of 3. start address not included since file is still open and will resume from last read address 54.
-			//cout << hex << buffer2[i]+0<< " ";
-			//cout << buffer1[i*3]+0 << " ";
 		}
 	
 		for(int i = 0; i < loop_limit;i++)
@@ -101,7 +96,7 @@ ofstream exporthexdata;
 			//cout << temporary + 0 << " ";
 			switch (temporary)
 			{
-			//max brightness in the cube is set to 12 (array with 12 elements which only range 0-11 is accessible)
+			//max brightness in the LED Matrix is set to 12 (array with 12 elements which only range 0-11 is accessible)
 			//this switch case code makes brightness changes sharper.
 			
 			case 0:
@@ -149,24 +144,55 @@ ofstream exporthexdata;
 					for(int i3 = 0; i3<8; i3++)
 					{
 					buffer3[i1*12+i2] |=binarybuffer[(i1*8)+i3][i2];
-					}
-				
-				}	
-				
-			}
+					}				
+				}					
+			}		
+	}
 
-		
+	void createexportfile(char exportlocation[])
+	{
+		exporthexdata.open(exportlocation);
+		exporthexdata << dec << "#ifndef export_h" <<endl;
+		exporthexdata << "#define export_h" << endl;
 	}
 	
+	void generate_runpictureprogram_function()
+	{
+	string currentpicture1= "/Import/import00";
+	string currentpicture2= "/Import/import0";
+	string currentpicture3= "/Import/import";	
+	string currentpictureconcat = "";
+	char stringtochar[1000];	
+	string format = ".bmp";
+		exporthexdata << endl << "extern void displaypicture(uint8_t picnumber, uint8_t heightinpixels, uint8_t cycles, uint8_t speed);"<<endl;
+		exporthexdata << endl << "void runpictureprogram(){"<<endl;
+		for(int i=1;i<=numberoffilesopen;i++)
+		{
+			switch(i)
+			{
+			case 1 ... 9:
+				currentpictureconcat = initialpath+currentpicture1 + to_string(i)+format;
+				break;
+			case 10 ... 99:
+				currentpictureconcat = initialpath+currentpicture2 + to_string(i)+format;
+				break;
+			case 100 ... 999:
+				currentpictureconcat = initialpath+currentpicture3 + to_string(i)+format;
+				break;
+			}
+		strcpy(stringtochar, currentpictureconcat.c_str());
+		open(stringtochar); //open BMP file to read height!			
+			//export data!
+			exporthexdata << dec << "displaypicture(" << i << "," << (height+0) << ",2,20);"<<endl;			
+		}
+		exporthexdata << "}"<<endl<<endl;
+
+	}
 	void exporttofile(char exportlocation[], uint8_t flag, int filenumber)
 	{
-		/// if flag is 0, then export data from buffer3
 		if(flag == 0)
-		{
-			exporthexdata.open(exportlocation);
-			exporthexdata << dec << "#ifndef export00" << filenumber << "_h" <<endl;
-			exporthexdata << "#define export00" << filenumber << "_h" <<endl;
-			exporthexdata << "const uint8_t storetoflash"<< filenumber <<"["<<(width*height)/8<<"]["<<brightness+0<<"] PROGMEM = {"<<endl;
+		{	
+			exporthexdata << dec << "const uint8_t storetoflash"<< filenumber <<"[" <<(((width*height)/8)+0)<<"]["<<(brightness+0)<<"] PROGMEM = {"<<endl;
 			
 			///////
 			for(int i1 = 0; i1<((width*height)/8);i1++)
@@ -178,37 +204,42 @@ ofstream exporthexdata;
 				}
 				exporthexdata <<"0x"<< hex<<buffer3[(i1*12)+brightness-1]+0<<"},"<<endl;
 			}
-			exporthexdata<<"};"<<endl;
-			exporthexdata << "#endif";
+			exporthexdata<<"};"<<endl<<endl<<endl;
 		}
-		/// if flag is 1, then export fixed data just to create fill header information and avoid compile errors in c program.
 		else if (flag == 1)
 		{
-			exporthexdata.open(exportlocation);
-			exporthexdata << dec << "#ifndef export00" << filenumber << "_h" <<endl;
-			exporthexdata << "#define export00" << filenumber << "_h" <<endl;
-			exporthexdata << "const uint8_t storetoflash" << filenumber << "[1][1] PROGMEM = {"<<endl;
+			exporthexdata << dec << "const uint8_t storetoflash" << filenumber << "[1][1] PROGMEM = {"<<endl;
 			exporthexdata << "{0x00}"<<endl;
-			exporthexdata << "};"<<endl;
-			exporthexdata << "#endif";
-			exporthexdata.close(); //close is needed when flag is 1 because these  "empty header files" do not use the .close class.
+			exporthexdata << "};"<<endl<<endl;
 		}
-
 	}
 	
-	void close()
+	void closeinputfiles()
 	{
 		openbmpfile.close();
-		exporthexdata.close();
-		if (openbmpfile.is_open()||exporthexdata.is_open())
+		if (openbmpfile.is_open())
 		{
 			cout << endl << "files could not be closed.";
 		}
 		else
 		{
-			cout <<endl << "program generated header file and closed used files."<<endl;
+			cout <<endl << "Input files have been closed successfully!."<<endl;
 		}
 		
+	}
+	
+	void closeoutputfile()
+	{
+		exporthexdata << endl << "#endif";
+		exporthexdata.close();
+		if (exporthexdata.is_open())
+		{
+			cout << endl << "file could not be closed.";
+		}
+		else
+		{
+			cout <<endl << "program generated header file and closed used files."<<endl;
+		}		
 	}
 	void displayinfo()
 	{
