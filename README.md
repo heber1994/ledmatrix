@@ -8,13 +8,13 @@ After I was done with the matrix, I coded simple letters and sentences in C for 
 So far there are 2 sections for this project:
 
 1st section: Code written in C
-Objective: create code that interacts with the microcontroller, the shift registers and the LED Matrix.
+,Objective: create code that interacts with the microcontroller, the shift registers and the LED Matrix.
 Inputs: Text, words, header.h file pictures using a custom-made packing algorithm
 Outputs: scrolling text, words and pictures on the LED Matrix!
 Dependency: This code depends on the 2nd section of the project. without the 2nd section, all I could display is scrolling text messages on the LED Matrix.
 
 2nd section: Code written in C++
-Objective: Generate header.h files from low resolution pictures using a custom-made packing algorithm.
+,Objective: Generate header.h files from low resolution pictures using a custom-made packing algorithm.
 Inputs: Pictures in .bmp file format, maximum width is 24, height has no limit, although I would not exceed 40 or 50 pixels in height (you can perform exploratory tests on this software and see what happens!)
 Outputs: header.h files
 Dependency: This code depends on pictures saved as bmp files. Without any bmp images, the pictures would not be generated!
@@ -36,12 +36,13 @@ TO RUN THE C++ PROGRAM (The program that generates h. header files):
 3) locate the "Export" folder and delete all the header files. You can peak at the files. When the tool runs, it should generate new header files for you!
 4) find main.exe in /ledmatrix_project/version_1.1 and just double click it. If you want to see some feedback, you can run the program within a terminal window.
 
-TO RUN THE C PROGRAM (The program that generates
+TO RUN THE C PROGRAM (The program that compiles the source.c file, with all other headers for the AVR)
 1) attach the USBTiny to a computer, then attach the SPI communications port to your microcontroller
 2) if you executed the C++ program already, then open up a terminal and go to /ledmatrix_project/version_1.1
 3) type in the terminal: make compile; make program
 4) if you would like to generate everything, then open up a terminal and go to /ledmatrix_project/version_1.1
 5) then, run execute_all.sh by typing: ./execute_all.sh
+6) don't forget to add/delete pictures in the Import folder.
 
 
 
