@@ -44,5 +44,12 @@ TO RUN THE C PROGRAM (The program that compiles the source.c file, with all othe
 5) then, run execute_all.sh by typing: ./execute_all.sh
 6) don't forget to add/delete pictures in the Import folder.
 
+OVERALL CHANGES
+Version 1.1 required the user to drag and drop 24-bit bitmap files into the /Input folder for picture processing. It then required the user to tweak the source.c file to adjust the # of pictures to be shown on the LED Matrix.
+Now with version 1.2, the user does not have to get involved with the source.c file to tweak the # of pictures to be displayed. The user only has to drag and drop black/white pictures of around 30x24 pixels in the /Input folder and then execute the execute_all.sh bash script to program pictures in the LED Matrix.
 
+ROOMS FOR IMPROVEMENT:
+1)	The CPP program only accepts low resolution pictures in black and white. This functionality is very limited and the CPP program should also be able to accept full color pictures of around 1500x1800 pixels in width and height for processing and image conversion.
+2)	The ATMEGA32 microcontroller is limited to displaying 14 pictures in total! The flash size is 32 kb and is very limited. The project cannot escalate correctly if a bigger LED Matrix with higher resolution is built. At this point, changing the platform can be beneficial for better performance and storage capacity.
+3)	The LED Matrix can display scrolling text, but only if the source.c file is modified. A bash script can be created where the user is prompted to enter a text message to be displayed on the Matrix instead of exposing the user to the raw code. This text message can be saved in a file, opened with CPP, have the contents read, saved in flash memory and then called.
 
